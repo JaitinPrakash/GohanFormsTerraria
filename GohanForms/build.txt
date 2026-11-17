@@ -1,5 +1,5 @@
 displayName = Dragon Ball Terraria: Gohan Forms Addon
 author = GoldFix1
-version = 0.4.2.1
+version = 0.5.0
 modReferences = DBZGoatLib, DBZMODPORT
 sortAfter = DBZGoatLib, DBZMODPORT

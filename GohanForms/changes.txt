@@ -31,3 +31,8 @@ fixed elder not spawning after breaking the sword
 slightly tweaked beast form
 -z sword now can generate naturally
 fixed transformation bind
+0.5.0
+
+Rebalanced Stats reworked into Extreme Scaling Mode (SSJTweaks ON now selects Extreme Scaling targets)
+Mystic 60x, Beast ~295->320x (BoostPerc mechanic preserved)
+Localization cleanups (buff tooltips build from live stats; removed junk entries)

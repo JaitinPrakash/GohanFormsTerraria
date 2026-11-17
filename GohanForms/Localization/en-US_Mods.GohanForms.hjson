@@ -1,7 +1,7 @@
 Buffs: {
 	BeastBuff: {
 		DisplayName: Beast
-		Description: y
+		Description: Gohan, pushing past every limit.
 	}
 
 	CKBuff: {
@@ -16,7 +16,7 @@ Buffs: {
 
 	MysticBuff: {
 		DisplayName: Potential Unleashed
-		Description: y
+		Description: Power fully awakened.
 	}
 
 	POTUNLBuff: {
@@ -90,8 +90,8 @@ Configs: {
 		DisplayName: Balance Config Server
 
 		SSJTweaks: {
-			Label: Rebalanced Stats (Mod Reload Required)
-			Tooltip: Self explanatory
+			Label: Extreme Scaling Mode (Mod Reload Required)
+			Tooltip: Switch transformation bonuses to the Extreme Scaling targets
 		}
 	}
 }
