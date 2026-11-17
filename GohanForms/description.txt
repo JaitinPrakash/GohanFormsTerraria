@@ -1,9 +1,46 @@
-Gohan Forms for DBT
+Gohan Forms for Dragon Ball Terraria (DBT)
 
-Potential Unleashed (Break Z Sword and talk to Elder Kai)
+DONT ASK QUESTIONS ABOUT THIS ADDON IN THE DBT SERVER THEY HAVE NOTHING TO DO WITH THIS MOD!!!
 
-Beast (Master Potential Unleashed and defeat/use drop from MoonLord)
+[hr][/hr]
 
-[h1]You can also join this server if you have any questions (or for no reason): https://discord.gg/whNCn3Dvuw[/h1]
+[h2]How to unlock forms[/h2]
+
+Potential Unleashed (Legendary trait cant access this form):
+1.Craft Z Sword
+((    Hallowed Bar - 20     ))
+((    Gold Bar - 10         ))
+((    Hell Stone Bar - 15   ))
+((    Soul of Sight - 5     ))
+((    Soul of Might - 5     ))
+((    Soul of Fright - 5    ))
+2.Hit Golem with it
+3.Talk to Elder Kai after breaking sword
+(You also should have ssj2 unlocked)
+
+Beast (Only for Prodigy):
+Beat Moonlord with mastered Ultimate 
+
+[h2]Forms Multipliers[/h2]
+
+Ultimate / Potential Unleashed:
+
+Damage: +250% | Speed: +225%
+Defense: +19  | Ki Costs: +55%
+Ki Drain: 240/s, 120/s when mastered
+
+Beast:
+
+Damage: +360%(+40% From Charge) | Speed: +400%
+Defense: +49  | Ki Costs: +100%
+Ki Drain: 300/s, 162/s when mastered
+
+[hr][/hr]
+
+[url=https://discord.gg/NqUvkJQWuA]Dragon Ball Terraria Server![/url]
+
+[url=https://discord.gg/whNCn3Dvuw]Terraria Ball Super Server![/url]
+
+addon code: https://github.com/GoldFix1/GohanFormsTerraria
 
 Sprites Edited/Based on Dragon Ball Terraria's Sprites. Credit to the original team.

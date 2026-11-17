@@ -1,21 +1,74 @@
 
 Mods: {
-	SSBETES: {
+	GohanForms: {
+		NPCs.Elder.DisplayName: Elder
+
 		Items: {
-			SSBEItem: {
-				DisplayName: BEvolution Test
-				Tooltip: Ok
+			BeastItem: {
+				DisplayName: Beast UNLOCK
+				Tooltip: Unleashes new power
+			}
+
+			DivineWater: {
+				DisplayName: Divine Water
+				Tooltip: You will be able to become stronger
+			}
+
+			GohanHat.DisplayName: Gohan Hat
+
+			MysticItem: {
+				DisplayName: Potential Unleashed UNLOCK
+				Tooltip: Unleashes (yes) new power
+			}
+
+			POTUNLItem: {
+				DisplayName: POTENTIAL UNLOCK
+				Tooltip: Unleashes new power
+			}
+
+			ZSword: {
+				DisplayName: Z Sword
+				Tooltip: Probably contains a huge power
 			}
 		}
 
 		Buffs: {
-			SSBEBuff: {
-				DisplayName: Super Saiyan Blue Evolution
+			BeastBuff: {
+				DisplayName: Beast
 				Description:
 					'''
-					Damage +410,00 %  | Speed +260,00 %
-					Defense +51 | Ki Costs +190,00 %
-					Ki Drain 300/s, 120/s when mastered
+					Damage +425.00%  | Speed +440.00%
+					Defense +62 | Ki Costs +100.00%
+					Ki Drain 300/s, 162/s when mastered
+					'''
+			}
+
+			CKBuff: {
+				DisplayName: Power Boost
+				Description: You can become stronger
+			}
+
+			EDBuff: {
+				DisplayName: Potential Release
+				Description: Your power is starting to increase
+			}
+
+			MysticBuff: {
+				DisplayName: Potential Unleashed
+				Description:
+					'''
+					Damage +250.00%  | Speed +225.00%
+					Defense +19 | Ki Costs +55.00%
+					Ki Drain 240/s, 120/s when mastered
+					'''
+			}
+
+			POTUNLBuff: {
+				DisplayName: Potential Unlocked
+				Description:
+					'''
+					Damage +15.00%  | Speed -100.00%
+
 					'''
 			}
 		}

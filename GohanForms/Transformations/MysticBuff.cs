@@ -1,98 +1,112 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
-using DBZGoatLib.Model;
-using Microsoft.Xna.Framework.Graphics;
 using DBZGoatLib;
-using Terraria.ModLoader;
-using DBZGoatLib.Handlers;
-/*
-using DBTBalance.Helpers;
-using DBTBalance.Model;
-using DBTBalance.Buffs;
-using DBTBalance;
-*/
+using DBZGoatLib.Model;
 using GohanForms.Assets;
-using System.Linq;
-using System.Reflection;
 using GohanForms.Model;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.ModLoader;
 
-namespace GohanForms.Transformations
+namespace GohanForms.Transformations;
+
+public class MysticBuff : Transformation
 {
-    public class MysticBuff : Transformation
-    {
-        public override AuraData AuraData() => new AuraData("DBZModPort/Effects/Animations/Aura/BaseAura", 4, BlendState.Additive, new Color(175, 175, 180));
+	public override AuraData AuraData()
+	{
+		//IL_001a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001f: Unknown result type (might be due to invalid IL or missing references)
+		return new AuraData("DBZModPort/Effects/Animations/Aura/BaseAura", 4, BlendState.Additive, new Color(175, 175, 180));
+	}
 
-        public override bool CanTransform(Player player)
-        {
-            var modPlayer = player.GetModPlayer<GOHPlayer>();
+	public override bool CanTransform(Player player)
+	{
+		GOHPlayer modPlayer = player.GetModPlayer<GOHPlayer>();
+		if (!player.HasBuff<MysticBuff>())
+		{
+			return modPlayer.MysticAchieved;
+		}
+		return false;
+	}
 
-            return !player.HasBuff<MysticBuff>() && modPlayer.MysticAchieved;
+	public override string FormName()
+	{
+		return "Ultimate";
+	}
 
-            //player.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<Transformations.PSSBBuff>()) >= 1 && 
-        }
+	public override string HairTexturePath()
+	{
+		return string.Empty;
+	}
 
+	public override Gradient KiBarGradient()
+	{
+		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0014: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002d: Unknown result type (might be due to invalid IL or missing references)
+		return new Gradient(new Color(152, 152, 152)).AddStop(1f, new Color(216, 216, 216));
+	}
 
-        public override string FormName() => "Potential Unleashed";
+	public override void OnTransform(Player player)
+	{
+		player.GetModPlayer<GOHPlayer>().CD = true;
+		player.GetModPlayer<GOHPlayer>().MysticActive = true;
+	}
 
-        public override string HairTexturePath() => "GohanForms/Assets/MysticHair";
+	public override void PostTransform(Player player)
+	{
+		player.GetModPlayer<GOHPlayer>().MysticActive = false;
+	}
 
-        public override Gradient KiBarGradient() => new Gradient(new Color(152, 152, 152)).AddStop(1f, new Color(216, 216, 216));
+	public override bool SaiyanSparks()
+	{
+		return true;
+	}
 
+	public override SoundData SoundData()
+	{
+		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+		return new SoundData("DBZMODPORT/Sounds/SSJAscension", "DBZMODPORT/Sounds/SSJ3", 260);
+	}
 
-        public override void OnTransform(Player player)
-        {
-            player.GetModPlayer<GOHPlayer>().MysticActive = true;
-        }
+	public override bool Stackable()
+	{
+		return false;
+	}
 
-        public override void PostTransform(Player player)
-        {
-            player.GetModPlayer<GOHPlayer>().MysticActive = false;
-        }
+	public override Color TextColor()
+	{
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		return Color.WhiteSmoke;
+	}
 
-        public override bool SaiyanSparks() => true;
+	public override void SetStaticDefaults()
+	{
+		base.kiDrainRate = 4f;
+		base.kiDrainRateWithMastery = 2f;
+		base.attackDrainMulti = 0.55f;
+		if (!BalanceConfigServer.Instance.SSJTweaks)
+		{
+			base.baseDefenceBonus = 19;
+			base.damageMulti = 3.5f;
+			base.speedMulti = 3.25f;
+		}
+		else
+		{
+			base.baseDefenceBonus = 24;
+			base.damageMulti = 1.55f;
+			base.speedMulti = 1.12f;
+		}
+		((Transformation)this).SetStaticDefaults();
+	}
 
-        public override SoundData SoundData() => new SoundData("DBZMODPORT/Sounds/SSJAscension", "DBZMODPORT/Sounds/SSJ3", 260);
-
-        public override bool Stackable() => false;
-
-        public override Color TextColor() => Color.WhiteSmoke;
-
-        /*
-        public static bool IsDBTREnabled(BindingFlags bindingFlags) //BindingFlags bindingFlags
-        {
-            if (ModLoader.TryGetMod("DBTBalance", out Mod dbtr))
-            {
-                var BalanceConfig = dbtr.Code.DefinedTypes.First(x => x.Name.Equals("BalanceConfigServer"));
-                dynamic Instance = BalanceConfig.GetField("Instance", BindingFlags.Public - 1).GetValue(null);
-                return (bool)(Instance?.SSJTweaks ?? false);
-            }
-            else return false;
-        }
-        */
-        public override void SetStaticDefaults()
-        {
-            kiDrainRate = 4f;
-            kiDrainRateWithMastery = 2f;
-            attackDrainMulti = 0.55f;
-            
-            if (!BalanceConfigServer.Instance.SSJTweaks)
-                //(BalanceConfigServer.GetValue() == true)
-                //(BalanceConfigServer.Instance.SSJTweaks)
-            {
-            
-                baseDefenceBonus = 19;
-                damageMulti = 3.5f; 
-                speedMulti = 3.25f;
-            
-            }
-            else 
-            {
-                baseDefenceBonus = 24;
-                damageMulti = 1.55f;
-                speedMulti = 1.12f;
-            }
-            
-            base.SetStaticDefaults(); // ALWAYS call this somewhere in your SetStaticDefaults()!
-        }
-    }
+	public override void Update(Player player, ref int buffIndex)
+	{
+		player.GetModPlayer<GOHPlayer>().CD = false;
+		if (player.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<MysticBuff>()) <= 1f)
+		{
+			player.GetModPlayer<GPlayer>().MasteryMultiplier = 3f;
+		}
+		((Transformation)this).Update(player, ref buffIndex);
+		((Transformation)this).SetStaticDefaults();
+	}
 }

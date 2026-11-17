@@ -1,215 +1,321 @@
-﻿using Terraria;
-using Terraria.ModLoader;
-using DBZGoatLib;
 using System;
+using DBZGoatLib;
+using DBZGoatLib.Handlers;
 using DBZGoatLib.Model;
-using Microsoft.Xna.Framework;
-using Steamworks;
-using GohanForms.Transformations;
-using GohanForms.Items;
-using System.Security.Policy;
-using Terraria.ModLoader.IO;
-using DBZMODPORT.Buffs;
 using DBZMODPORT;
-//using DBTBalance;
-using System.Linq;
-using System.Reflection;
-using Terraria.ID;
+using GohanForms.Transformations;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
+using Terraria.DataStructures;
+using Terraria.GameInput;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
-namespace GohanForms.Assets
+namespace GohanForms.Assets;
+
+internal class GOHPlayer : ModPlayer
 {
-    internal class GOHPlayer : ModPlayer
-    {
-        public const int LifePerFruit = 50;
-        public const int MaxExampleLifeFruits = 1;
+	public class BSSFPanel : TransformationTree
+	{
+		public override bool Complete()
+		{
+			return false;
+		}
 
-        public bool MysticActive;
-        public bool MysticUnlockMsg;
-        public bool MysticAchieved;
+		public override bool Condition(Player player)
+		{
+			return true;
+		}
 
-        public bool BeastActive;
-        public bool BeastUnlockMsg;
-        public bool BeastAchieved;
-        public bool MPB_Unlock;
+		public override Connection[] Connections()
+		{
+			//IL_0018: Unknown result type (might be due to invalid IL or missing references)
+			//IL_001d: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0030: Unknown result type (might be due to invalid IL or missing references)
+			//IL_003a: Unknown result type (might be due to invalid IL or missing references)
+			//IL_003f: Unknown result type (might be due to invalid IL or missing references)
+			return new Connection[1]
+			{
+				new Connection(6f, 0f, 1f, false, new Gradient(Color.Gray).AddStop(0.6f, new Color(97, 122, 129)))
+			};
+		}
 
-        public bool POTUNLActive;
-        public bool POTUNLUnlockMsg;
-        public bool POTUNLAchieved;
+		public override string Name()
+		{
+			return "Gohan Forms";
+		}
 
-        public DateTime? Offset = null;
-        public DateTime? PoweringUpTime = null;
-        public DateTime? LastPowerUpTick = null;
+		public override Node[] Nodes()
+		{
+			//IL_003b: Unknown result type (might be due to invalid IL or missing references)
+			//IL_0040: Unknown result type (might be due to invalid IL or missing references)
+			//IL_007a: Unknown result type (might be due to invalid IL or missing references)
+			//IL_007f: Unknown result type (might be due to invalid IL or missing references)
+			return new Node[2]
+			{
+				new Node(6f, 0f, "MysticBuff", "GohanForms/Transformations/MysticBuff", "Hit Golem with Z Sword and talk to Kai", (Predicate<Player>)UnlockConditionMystic, (Predicate<Player>)DiscoverConditionMystic, false, (Action<Player>)null),
+				new Node(7f, 0f, "BeastBuff", "GohanForms/Transformations/BeastBuff", "MoonLord with half mastered Potential Unleashed (Only for Prodigy)", (Predicate<Player>)UnlockConditionBeast, (Predicate<Player>)DiscoverConditionBeast, false, (Action<Player>)null)
+			};
+		}
 
-        private TransformationInfo? Form = null;
+		public bool UnlockConditionMystic(Player player)
+		{
+			if (player.GetModPlayer<GOHPlayer>().MysticAchieved)
+			{
+				return player.GetModPlayer<GPlayer>().Trait != "Legendary";
+			}
+			return false;
+		}
 
-        public override void PostUpdate()
-        {
-            if (MysticAchieved && !MysticUnlockMsg)
-            {
-                MysticUnlockMsg = true;
-                Main.NewText("Your potential has been unleashed!");
-            }
+		public bool DiscoverConditionMystic(Player player)
+		{
+			if (NPC.downedGolemBoss || player.GetModPlayer<MyPlayer>().masteryLevel2 != 0f)
+			{
+				return player.GetModPlayer<GPlayer>().Trait != "Legendary";
+			}
+			return false;
+		}
 
-            if (MPB_Unlock && Main.netMode == NetmodeID.MultiplayerClient)
-            {
-                //dynamic modPlayer = GohanForms.DBZMOD.Code.DefinedTypes.First(x => x.Name.Equals("MyPlayer")).GetMethod("ModPlayer").Invoke(null, new object[] { Player });
+		public bool UnlockConditionBeast(Player player)
+		{
+			if (player.GetModPlayer<GOHPlayer>().BeastAchieved)
+			{
+				return player.GetModPlayer<GPlayer>().Trait == "Prodigy";
+			}
+			return false;
+		}
 
-                Player player = Main.player[Main.myPlayer];
-                if (player.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<Transformations.MysticBuff>()) >= 1)
-                {
-                    BeastAchieved = true;
-                    MPB_Unlock = false;
-                }
-            }
-            if (BeastAchieved && !BeastUnlockMsg)
-            {
-                BeastUnlockMsg = true;
-                if (Main.netMode != NetmodeID.Server)
-                {
-                    Player player = Main.player[Main.myPlayer];
-                    player.AddBuff(ModContent.BuffType<BeastBuff>(), 14400);
-                    Main.NewText("You have come even further beyond.", Color.SlateBlue);
-                    player.AddBuff(ModContent.BuffType<BeastBuff>(), 14400);
-                }
-            }
+		public bool DiscoverConditionBeast(Player player)
+		{
+			if (player.GetModPlayer<GOHPlayer>().MysticAchieved)
+			{
+				return player.GetModPlayer<GPlayer>().Trait == "Prodigy";
+			}
+			return false;
+		}
+	}
 
-            if (POTUNLAchieved && !POTUNLUnlockMsg)
-            {
-                POTUNLUnlockMsg = true;
-                Main.NewText("You have unlocked your true potential.");
+	public bool MysticActive;
 
-                Player player = Main.player[Main.myPlayer];
-                player.GetDamage(DamageClass.Generic).Base += 2f;
-                player.moveSpeed += 0.25f;
-                player.statDefense += 5;
-                player.statLifeMax2 += LifePerFruit;
-                player.statLife += LifePerFruit;
-            }
-        }
+	public bool MysticUnlockMsg;
 
+	public bool MysticAchieved;
 
-        public override void SaveData(TagCompound tag)
-        {
-            tag.Add("GohanForms_MysticAchieved", MysticAchieved);
-            tag.Add("GohanForms_MysticUnlockMsg", MysticUnlockMsg);
+	public bool BeastActive;
 
-            tag.Add("GohanForms_BeastAchieved", BeastAchieved);
-            tag.Add("GohanForms_BeastUnlockMsg", BeastUnlockMsg);
+	public bool BeastUnlockMsg;
 
-            tag.Add("GohanForms_POTUNLAchieved", POTUNLAchieved);
-            tag.Add("GohanForms_POTUNLUnlockMsg", POTUNLUnlockMsg);
-        }
+	public bool BeastAchieved;
 
-        public override void LoadData(TagCompound tag)
-        {
-            if (tag.ContainsKey("GohanForms_MysticAchieved"))
-                MysticAchieved = tag.GetBool("GohanForms_MysticAchieved");
-            if (tag.ContainsKey("GohanForms_MysticUnlockMsg"))
-                MysticUnlockMsg = tag.GetBool("GohanForms_MysticUnlockMsg");
+	public bool MP_Unlock;
 
-            if (tag.ContainsKey("GohanForms_BeastAchieved"))
-                BeastAchieved = tag.GetBool("GohanForms_BeastAchieved");
-            if (tag.ContainsKey("GohanForms_BeastUnlockMsg"))
-                BeastUnlockMsg = tag.GetBool("GohanForms_BeastUnlockMsg");
+	public bool SwordBroke;
 
-            if (tag.ContainsKey("GohanForms_POTUNLAchieved"))
-                POTUNLAchieved = tag.GetBool("GohanForms_POTUNLAchieved");
-            if (tag.ContainsKey("GohanForms_POTUNLUnlockMsg"))
-                POTUNLUnlockMsg = tag.GetBool("GohanForms_POTUNLUnlockMsg");
-        }
+	public bool CD;
 
+	public int BeastCharge;
 
-        public class ExampleLifeFruitPlayer : ModPlayer
-        {
-            public int exampleLifeFruits;
+	public int BoostTimer;
 
-            public override void ResetEffects()
-            {
-                // Increasing health in the ResetEffects hook in particular is important so it shows up properly in the player select menu
-                // and so that life regeneration properly scales with the bonus health
-                Player.statLifeMax2 += exampleLifeFruits * DivineWater.LifePerFruit;
-            }
+	public float BoostPerc;
 
-            public override void SyncPlayer(int toWho, int fromWho, bool newPlayer)
-            {
-                ModPacket packet = Mod.GetPacket();
-                //packet.Write((byte)GohanForms.MessageType.ExamplePlayerSyncPlayer);
-                packet.Write((byte)Player.whoAmI);
-                packet.Write(exampleLifeFruits);
-                packet.Send(toWho, fromWho);
-            }
+	public int TimerReduce;
 
-            // NOTE: The tag instance provided here is always empty by default.
-            // Read https://github.com/tModLoader/tModLoader/wiki/Saving-and-loading-using-TagCompound to better understand Saving and Loading data.
-            public override void SaveData(TagCompound tag)
-            {
-                tag["exampleLifeFruits"] = exampleLifeFruits;
-            }
+	public Texture2D hair;
 
-            public override void LoadData(TagCompound tag)
-            {
-                exampleLifeFruits = (int)tag["exampleLifeFruits"];
-            }
-        }
+	public int lightningFrameTimer;
+
+	private int lightning3FrameTimer = 6;
+
+	private int lightning3FrameTime;
+
+	public int lightning3FrameCount = 9;
+
+	public int lightning3FrameIndex;
+
+	public DateTime? Offset;
+
+	public DateTime? PoweringUpTime;
+
+	public DateTime? LastPowerUpTick;
 
 
-        public class BSSFPanel : TransformationTree
-        {
-            public override bool Complete() => false;
-            public override bool Condition(Player player) => true;
+	public override void PostUpdate()
+	{
+		//IL_00fd: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_01c3: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0202: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0207: Unknown result type (might be due to invalid IL or missing references)
+		//IL_021b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_022b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0238: Unknown result type (might be due to invalid IL or missing references)
+		//IL_023e: Unknown result type (might be due to invalid IL or missing references)
+		//IL_024b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0250: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0255: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0259: Unknown result type (might be due to invalid IL or missing references)
+		//IL_026a: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02a9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02ae: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02bf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02cf: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02dc: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02e2: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02ef: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02f4: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02f9: Unknown result type (might be due to invalid IL or missing references)
+		//IL_02fd: Unknown result type (might be due to invalid IL or missing references)
+		Player val = Main.player[Main.myPlayer];
+		GOHPlayer modPlayer = val.GetModPlayer<GOHPlayer>();
+		NPC[] npc = Main.npc;
+		foreach (NPC val2 in npc)
+		{
+			if (val2.type == 398 && val2.life <= 25 && !modPlayer.BeastAchieved && val.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<MysticBuff>()) >= 1f && val.GetModPlayer<GPlayer>().Trait == "Prodigy")
+			{
+				modPlayer.BeastAchieved = true;
+				TransformationHandler.ClearTransformations(((ModPlayer)this).Player);
+				TransformationHandler.Transform(((ModPlayer)this).Player, TransformationHandler.GetTransformation("BeastBuff").Value);
+			}
+		}
+		if (MysticAchieved && !MysticUnlockMsg)
+		{
+			MysticUnlockMsg = true;
+			Main.NewText("Your potential has been unleashed!", byte.MaxValue, byte.MaxValue, byte.MaxValue);
+		}
+		if (BeastAchieved && !BeastUnlockMsg)
+		{
+			BeastUnlockMsg = true;
+			Main.NewText((object)"You have come even further beyond.", (Color?)Color.SlateBlue);
+		}
+		if (((ModPlayer)this).Player.HasBuff<BeastBuff>())
+		{
+			lightningFrameTimer++;
+		}
+		if (lightning3FrameTime >= lightning3FrameTimer)
+		{
+			lightning3FrameTime = 0;
+			lightning3FrameIndex++;
+			if (lightning3FrameIndex >= lightning3FrameCount)
+			{
+				lightning3FrameIndex = 0;
+			}
+		}
+		if (lightningFrameTimer >= 15)
+		{
+			lightningFrameTimer = 0;
+		}
+		if (((ModPlayer)this).Player.HasBuff<BeastBuff>() && TransformationHandler.EnergyChargeKey.Current)
+		{
+			if (BoostPerc < 1f)
+			{
+				BeastCharge++;
+				if (BeastCharge > 100)
+				{
+					for (int j = 0; j < 35; j++)
+					{
+						Vector2 val3 = ((Entity)val).Center + new Vector2(Utils.NextFloat(Main.rand, (float)(-((Entity)val).width - 2), (float)(((Entity)val).width + 2)), Utils.NextFloat(Main.rand, (float)(-((Entity)val).height - 6), (float)(((Entity)val).height + 6)));
+						Vector2? val4 = Utils.RotatedByRandom(new Vector2(0f, -1.5f), (double)MathHelper.ToRadians(80f));
+						Color val5 = default;
+						Dust val6 = Dust.NewDustPerfect(val3, 221, val4, 0, val5, 1f);
+						Vector2 center = ((Entity)val).Center;
+						val5 = Color.Red;
+						Lighting.AddLight(center, val5.ToVector3());
+						val6.noGravity = true;
+						Vector2 val7 = ((Entity)val).Center + new Vector2(Utils.NextFloat(Main.rand, (float)(-((Entity)val).width - 6), (float)(((Entity)val).width + 6)), Utils.NextFloat(Main.rand, (float)(-((Entity)val).height - 6), (float)(((Entity)val).height + 6)));
+						Vector2? val8 = Utils.RotatedByRandom(new Vector2(0f, -1.5f), (double)MathHelper.ToRadians(100f));
+						val5 = default;
+						Dust val9 = Dust.NewDustPerfect(val7, 62, val8, 0, val5, 1f);
+						Vector2 center2 = ((Entity)val).Center;
+						val5 = Color.DarkViolet;
+						Lighting.AddLight(center2, val5.ToVector3());
+						val9.noGravity = true;
+					}
+					BoostPerc += 0.1f;
+					BeastCharge = 0;
+				}
+			}
+			TimerReduce = 0;
+			BoostTimer = 900;
+		}
+		else
+		{
+			if (!((ModPlayer)this).Player.HasBuff<BeastBuff>() || TransformationHandler.EnergyChargeKey.Current)
+			{
+				return;
+			}
+			if (BoostTimer >= 1)
+			{
+				BoostTimer--;
+			}
+			if (BoostTimer == 0 && BoostPerc > 0.1f)
+			{
+				TimerReduce++;
+				if (TimerReduce > 220)
+				{
+					BoostPerc -= 0.1f;
+					TimerReduce = 0;
+				}
+			}
+		}
+	}
 
-            public override Connection[] Connections() => new Connection[]
-            {
-            //new Connection(5,0,1,false,new Gradient(Color.AliceBlue).AddStop(0.60f, new Color(176,196,222))),
-            //Color.RoyalBlue
-            new Connection(6,0,1,false,new Gradient(Color.AliceBlue).AddStop(0.60f, new Color(0,206,209))),
-            };
+	public override void SaveData(TagCompound tag)
+	{
+		tag.Add("GohanForms_SwordBroke", (object)SwordBroke);
+		tag.Add("GohanForms_MysticAchieved", (object)MysticAchieved);
+		tag.Add("GohanForms_MysticUnlockMsg", (object)MysticUnlockMsg);
+		tag.Add("GohanForms_BeastAchieved", (object)BeastAchieved);
+		tag.Add("GohanForms_BeastUnlockMsg", (object)BeastUnlockMsg);
+	}
 
-            public override string Name() => "Bonus Forms";
+	public override void LoadData(TagCompound tag)
+	{
+		if (tag.ContainsKey("GohanForms_SwordBroke"))
+		{
+			SwordBroke = tag.GetBool("GohanForms_SwordBroke");
+		}
+		if (tag.ContainsKey("GohanForms_MysticAchieved"))
+		{
+			MysticAchieved = tag.GetBool("GohanForms_MysticAchieved");
+		}
+		if (tag.ContainsKey("GohanForms_MysticUnlockMsg"))
+		{
+			MysticUnlockMsg = tag.GetBool("GohanForms_MysticUnlockMsg");
+		}
+		if (tag.ContainsKey("GohanForms_BeastAchieved"))
+		{
+			BeastAchieved = tag.GetBool("GohanForms_BeastAchieved");
+		}
+		if (tag.ContainsKey("GohanForms_BeastUnlockMsg"))
+		{
+			BeastUnlockMsg = tag.GetBool("GohanForms_BeastUnlockMsg");
+		}
+	}
 
-            public override Node[] Nodes() => new Node[]
-            {
-            new Node(6, 0, "MysticBuff", "GohanForms/Transformations/MysticBuff", "Golem",UnlockConditionMystic,DiscoverConditionMystic), //Only gifted warriors can achieve such strength through training.
-            new Node(7, 0, "BeastBuff", "GohanForms/Transformations/BeastBuff", "MoonLord",UnlockConditionBeast,DiscoverConditionBeast), //Train harder in your god form.
-            //new Node(5, 0, "POTUNLBuff", "GohanForms/Transformations/POTUNLBuff", "EyeOfCthulhu",UnlockConditionPOTUNL,DiscoverConditionPOTUNL),
-            };
-            public bool UnlockConditionMystic(Player player)
-            {
-                var GOHPlayer = player.GetModPlayer<GOHPlayer>();
+	public override void ProcessTriggers(TriggersSet triggersSet)
+	{
+		//IL_0083: Unknown result type (might be due to invalid IL or missing references)
+		Player val = Main.player[Main.myPlayer];
+		if (TransformationHandler.EnergyChargeKey.Current && TransformationHandler.TransformKey.JustPressed && BeastAchieved && !((ModPlayer)this).Player.HasBuff<BeastBuff>() && ((ModPlayer)this).Player.HasBuff<MysticBuff>() && val.GetModPlayer<GPlayer>().Trait == "Prodigy" && !CD)
+		{
+			TransformationHandler.ClearTransformations(((ModPlayer)this).Player);
+			TransformationHandler.Transform(((ModPlayer)this).Player, TransformationHandler.GetTransformation("BeastBuff").Value);
+		}
+	}
 
-                return GOHPlayer.MysticAchieved;
-
-            }
-
-            public bool DiscoverConditionMystic(Player player)
-            {
-                return true;
-            }
-
-            public bool UnlockConditionBeast(Player player)
-            {
-                var GOHPlayer = player.GetModPlayer<GOHPlayer>();
-
-                return player.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<Transformations.MysticBuff>()) >= 1 && GOHPlayer.BeastAchieved;
-
-            }
-            public bool DiscoverConditionBeast(Player player)
-            {
-                return player.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<Transformations.MysticBuff>()) >= 1;
-            }
-            public bool UnlockConditionPOTUNL(Player player)
-            {
-                var GOHPlayer = player.GetModPlayer<GOHPlayer>();
-
-                return GOHPlayer.POTUNLAchieved;
-            }
-
-            public bool DiscoverConditionPOTUNL(Player player)
-            {
-                return true;
-            }
-        }
-    }
+	public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo)
+	{
+		//IL_0025: Unknown result type (might be due to invalid IL or missing references)
+		//IL_002a: Unknown result type (might be due to invalid IL or missing references)
+		if (hair != null && !drawInfo.fullHair)
+		{
+			drawInfo.drawPlayer.head = 0;
+		}
+		if (BeastActive)
+		{
+			drawInfo.colorHair = Color.Transparent;
+		}
+	}
 }
-
-

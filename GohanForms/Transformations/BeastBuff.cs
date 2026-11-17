@@ -1,75 +1,112 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
 using DBZGoatLib.Model;
-using Microsoft.Xna.Framework.Graphics;
-using DBZGoatLib;
-//using DBTBalance.Buffs;
-//using DBTBalance;
-//using DBTBalance.Helpers;
-//using DBTBalance.Model;
-using Terraria.ModLoader;
-using DBZGoatLib.Handlers;
 using GohanForms.Assets;
 using GohanForms.Model;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Terraria;
 
-namespace GohanForms.Transformations
+namespace GohanForms.Transformations;
+
+internal class BeastBuff : Transformation
 {
-    internal class BeastBuff : Transformation
-    {
-        public override AuraData AuraData() => new AuraData("GohanForms/Assets/BeastAura", 4, BlendState.AlphaBlend, new Color(171, 229, 255)); //44, 149, 197
+	public override AuraData AuraData()
+	{
+		//IL_0017: Unknown result type (might be due to invalid IL or missing references)
+		//IL_001c: Unknown result type (might be due to invalid IL or missing references)
+		return new AuraData("DBZMODPORT/Effects/Animations/Aura/BaseAura", 4, BlendState.Additive, new Color(116, 173, 242));
+	}
 
-        public override bool CanTransform(Player player)
-        {
-            var modPlayer = player.GetModPlayer<GOHPlayer>();
+	public override bool CanTransform(Player player)
+	{
+		GOHPlayer modPlayer = player.GetModPlayer<GOHPlayer>();
+		if (!player.HasBuff<BeastBuff>())
+		{
+			return modPlayer.BeastAchieved;
+		}
+		return false;
+	}
 
-            return player.GetModPlayer<GPlayer>().GetMastery(ModContent.BuffType<Transformations.MysticBuff>()) >= 1 && !player.HasBuff<BeastBuff>() && modPlayer.BeastAchieved;
+	public override string FormName()
+	{
+		return "Beast";
+	}
 
-            //return !player.HasBuff<SSBEBuff>() && modPlayer.SSBEAchieved;
-        }
+	public override string HairTexturePath()
+	{
+		return "GohanForms/Assets/BeastHair";
+	}
 
-        public override string FormName() => "Beast";
+	public override Gradient KiBarGradient()
+	{
+		//IL_0008: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0023: Unknown result type (might be due to invalid IL or missing references)
+		return new Gradient(new Color(75, 0, 130)).AddStop(1f, new Color(138, 43, 226));
+	}
 
-        public override string HairTexturePath() => "GohanForms/Assets/BeastHair";
+	public override void OnTransform(Player player)
+	{
+		player.GetModPlayer<GOHPlayer>().BeastActive = true;
+	}
 
-        public override Gradient KiBarGradient() => new Gradient(new Color(75, 0, 130)).AddStop(1f, new Color(138, 43, 226));
+	public override void PostTransform(Player player)
+	{
+		player.GetModPlayer<GOHPlayer>().BeastActive = false;
+		player.GetModPlayer<GOHPlayer>().BoostPerc = 0f;
+		player.GetModPlayer<GOHPlayer>().BeastCharge = 0;
+	}
 
-        public override void OnTransform(Player player)
-        {
-            player.GetModPlayer<GOHPlayer>().BeastActive = true;
-        }
+	public override bool SaiyanSparks()
+	{
+		return false;
+	}
 
-        public override void PostTransform(Player player)
-        {
-            player.GetModPlayer<GOHPlayer>().BeastActive = false;
-        }
+	public override SoundData SoundData()
+	{
+		//IL_000f: Unknown result type (might be due to invalid IL or missing references)
+		return new SoundData("DBZMODPORT/Sounds/Awakening", "DBZMODPORT/Sounds/SSG", 260);
+	}
 
-        public override bool SaiyanSparks() => false;
+	public override bool Stackable()
+	{
+		return false;
+	}
 
-        public override SoundData SoundData() => new SoundData("DBZMODPORT/Sounds/Awakening", "DBZMODPORT/Sounds/SSG", 260);
+	public override Color TextColor()
+	{
+		//IL_0000: Unknown result type (might be due to invalid IL or missing references)
+		return Color.Indigo;
+	}
 
-        public override bool Stackable() => false;
+	public override void SetStaticDefaults()
+	{
+		base.kiDrainRate = 5f;
+		base.kiDrainRateWithMastery = 2.7f;
+		base.attackDrainMulti = 1f;
+		if (!BalanceConfigServer.Instance.SSJTweaks)
+		{
+			base.baseDefenceBonus = 49;
+			base.speedMulti = 5f;
+		}
+		else
+		{
+			base.baseDefenceBonus = 32;
+			base.speedMulti = 1.4f;
+		}
+		((Transformation)this).SetStaticDefaults();
+	}
 
-        public override Color TextColor() => Color.Indigo;
-
-        public override void SetStaticDefaults()
-        {
-                kiDrainRate = 5f;
-                kiDrainRateWithMastery = 2.7f;
-                attackDrainMulti = 1f;
-            if (!BalanceConfigServer.Instance.SSJTweaks)
-            {
-                baseDefenceBonus = 62;
-                damageMulti = 5.25f;
-                speedMulti = 5.40f;
-            } 
-            else
-            {
-                baseDefenceBonus = 45;
-                damageMulti = 1.8f;
-                speedMulti = 1.4f;
-            }
-
-            base.SetStaticDefaults(); 
-        }
-    }
+	public override void Update(Player player, ref int buffIndex)
+	{
+		GOHPlayer modPlayer = player.GetModPlayer<GOHPlayer>();
+		if (!BalanceConfigServer.Instance.SSJTweaks)
+		{
+			base.damageMulti = 4.6f + 0.4f * modPlayer.BoostPerc;
+		}
+		else
+		{
+			base.damageMulti = 1.5f + 0.3f * modPlayer.BoostPerc;
+		}
+		((Transformation)this).Update(player, ref buffIndex);
+	}
 }

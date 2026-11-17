@@ -1,50 +1,44 @@
-﻿using Microsoft.Xna.Framework;
-using Terraria;
-using DBZGoatLib;
-using DBZGoatLib.Handlers;
-using Terraria.ModLoader;
-using Terraria.ID;
 using GohanForms.Assets;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
 
-namespace GohanForms.Items
+namespace GohanForms.Items;
+
+internal class BeastItem : ModItem
 {
-    internal class BeastItem : ModItem
-    {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Beast UNLOCK");
-            Tooltip.SetDefault("Unleashes new power");
-        }
+	public override void SetStaticDefaults()
+	{
+	}
 
-        public override void SetDefaults()
-        {
-            Item.consumable = true;
-            Item.potion = false;
-            Item.width = 40;
-            Item.height = 40;
-            Item.useTime = 20;
-            Item.useAnimation = 20;
-            Item.useStyle = ItemUseStyleID.EatFood;
-            Item.UseSound = SoundID.Item1;
-            Item.autoReuse = false;
-            Item.noMelee = true;
-            Item.scale = 1f;
-            Item.rare = 9;
-        }
+	public override void SetDefaults()
+	{
+		//IL_005e: Unknown result type (might be due to invalid IL or missing references)
+		((ModItem)this).Item.consumable = true;
+		((ModItem)this).Item.potion = false;
+		((Entity)((ModItem)this).Item).width = 40;
+		((Entity)((ModItem)this).Item).height = 40;
+		((ModItem)this).Item.useTime = 20;
+		((ModItem)this).Item.useAnimation = 20;
+		((ModItem)this).Item.useStyle = 2;
+		((ModItem)this).Item.UseSound = SoundID.Item1;
+		((ModItem)this).Item.autoReuse = false;
+		((ModItem)this).Item.noMelee = true;
+		((ModItem)this).Item.scale = 1f;
+		((ModItem)this).Item.rare = 9;
+	}
 
-        public override bool? UseItem(Player player)
-        {
-            var GOHPlayer = player.GetModPlayer<GOHPlayer>();
-            return !GOHPlayer.BeastAchieved;
-        }
+	public override bool? UseItem(Player player)
+	{
+		return !player.GetModPlayer<GOHPlayer>().BeastAchieved;
+	}
 
-        public override void OnConsumeItem(Player player)
-        {
-            var GOHPlayer = player.GetModPlayer<GOHPlayer>();
-            if (!GOHPlayer.BeastAchieved)
-            {
-                GOHPlayer.BeastAchieved = true;
-            }
-        }
-    }
+	public override void OnConsumeItem(Player player)
+	{
+		GOHPlayer modPlayer = player.GetModPlayer<GOHPlayer>();
+		if (!modPlayer.BeastAchieved)
+		{
+			modPlayer.BeastAchieved = true;
+		}
+	}
 }

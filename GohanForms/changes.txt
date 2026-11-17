@@ -8,3 +8,26 @@ Added Beast
 Changed unlock conditions for mystic
 Beast now can be obtained without item
 Changed Beast aura
+
+0.3
+
+1.4.4 port
+keybind
+no hair in forms
+
+0.4
+
+fixed pu ritual not working bug
+beast now can be unlocked in multiplayer
+beast is now only for prodigy
+dbt bind instead of separate
+player hair instead of gohans
+added lightning to beast
+changed beast aura
+
+0.4.2
+
+fixed elder not spawning after breaking the sword
+slightly tweaked beast form
+-z sword now can generate naturally
+fixed transformation bind

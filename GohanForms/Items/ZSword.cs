@@ -1,255 +1,106 @@
-using Microsoft.Xna.Framework;
-using Terraria;
-using Terraria.ID;
-using Terraria.Audio;
-using Terraria.ModLoader;
-using Terraria.GameContent.Creative;
-using GohanForms.Changes;
+using System;
 using GohanForms.Assets;
-using GohanForms.Items;
+using GohanForms.Changes;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.ID;
+using Terraria.Localization;
+using Microsoft.Xna.Framework;
+using Terraria.ModLoader;
 
-namespace GohanForms.Items
+namespace GohanForms.Items;
+
+public class ZSword : ModItem
 {
-	public class ZSword : ModItem
+	private SoundStyle sound = new SoundStyle("GohanForms/Assets/SwordBreaks", (SoundType)0);
+
+	public override void SetStaticDefaults()
 	{
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault("Z Sword"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-			Tooltip.SetDefault("Probably contains a huge power");
-		}
-		public override void SetDefaults()
-		{
-			Item.damage = 81;
-			Item.DamageType = DamageClass.Melee/* tModPorter Suggestion: Consider MeleeNoSpeed for no attack speed scaling */;
-			Item.width = 40;
-			Item.height = 40;
-			Item.useTime = 60;
-			Item.useAnimation = 60;
-			Item.useStyle = 1;
-			Item.knockBack = 6;
-			Item.value = 1000;
-			Item.rare = 6;
-			Item.UseSound = SoundID.Item1;
-			Item.autoReuse = false;
-			//Item.shoot = ProjectileID.EnchantedBeam;
-			//Item.shootSpeed = 10f;
-		}
+	}
 
-        SoundStyle sound = new SoundStyle("GohanForms/Assets/SwordBreaks");
+	public override void SetDefaults()
+	{
+		//IL_008f: Unknown result type (might be due to invalid IL or missing references)
+		((ModItem)this).Item.damage = 81;
+		((ModItem)this).Item.DamageType = DamageClass.Melee;
+		((Entity)((ModItem)this).Item).width = 40;
+		((Entity)((ModItem)this).Item).height = 40;
+		((ModItem)this).Item.useTime = 60;
+		((ModItem)this).Item.useAnimation = 60;
+		((ModItem)this).Item.useStyle = 1;
+		((ModItem)this).Item.knockBack = 6f;
+		((ModItem)this).Item.value = 1000;
+		((ModItem)this).Item.rare = 6;
+		((ModItem)this).Item.UseSound = SoundID.Item1;
+		((ModItem)this).Item.autoReuse = false;
+	}
 
-        public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit)
+	public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone)
+	{
+		//IL_007b: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0080: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0088: Unknown result type (might be due to invalid IL or missing references)
+		//IL_008d: Unknown result type (might be due to invalid IL or missing references)
+		//IL_0091: Unknown result type (might be due to invalid IL or missing references)
+		//IL_009c: Unknown result type (might be due to invalid IL or missing references)
+		GOHPlayer modPlayer = player.GetModPlayer<GOHPlayer>();
+		target.AddBuff(36, 600, false);
+		if ((target.type != 245 && target.type != 246 && target.type != 249 && target.type != 247 && target.type != 248) || CanKaiSpawn.SwordBroke)
 		{
-			target.AddBuff(BuffID.BrokenArmor, 600);
-			if (target.type == NPCID.Golem)
+			return;
+		}
+		CanKaiSpawn.SwordBroke = true;
+		modPlayer.SwordBroke = true;
+		SoundStyle val = sound.WithVolumeScale(4f);
+		val = val.WithPitchOffset(0.8f);
+		SoundEngine.PlaySound(ref val, (Vector2?)((Entity)player).position, (SoundUpdateCallback)null);
+		((ModItem)this).Item.TurnToAir(false);
+		IEntitySource val2 = null;
+		Main.LocalPlayer.QuickSpawnItem(val2, 1570, 1);
+		if (((Entity)player).whoAmI != Main.myPlayer)
+		{
+			return;
+		}
+		int num = ModContent.NPCType<Elder>();
+		if (Main.netMode != 1)
+		{
+			if (!NPC.AnyNPCs(ModContent.NPCType<Elder>()))
 			{
-				Item.TurnToAir();
-                Terraria.DataStructures.IEntitySource entitySource = null;
-                Main.LocalPlayer.QuickSpawnItem(entitySource, ItemID.BrokenHeroSword);
-                // Item.shoot = ModContent.ProjectileType<ExampleFlailProjectile>();
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shootSpeed = 10f;
-                SoundEngine.PlaySound(sound.WithVolumeScale(4f).WithPitchOffset(0.8f), player.position);
-                //Item.UseSound = SoundID.Item1;
-                //SoundEngine.PlaySound(sound.WithVolumeScale(0.5f).WithPitchOffset(0.8f), player.position);
-
-                if (player.whoAmI == Main.myPlayer)
-                {
-                    // If the player using the item is the client
-                    // (explicitely excluded serverside here)
-
-                    //SoundEngine.PlaySound(SoundID.Roar, player.position);
-
-
-                    int type = ModContent.NPCType<Elder>();
-
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        if (!NPC.AnyNPCs(ModContent.NPCType<Elder>()))
-                        {
-                        // If the player is not in multiplayer, spawn directly
-                        NPC.SpawnOnPlayer(player.whoAmI, type);
-                        }
-
-                    }
-                    else
-                    {
-                        // If the player is in multiplayer, request a spawn
-                        // This will only work if NPCID.Sets.MPAllowedEnemies[type] is true, which we set in MinionBossBody
-                        NetMessage.SendData(MessageID.SpawnBoss, number: player.whoAmI, number2: type);
-                    }
-                }
-
-            }
-            if (target.type == NPCID.GolemHead)
-            {
-                Item.TurnToAir();
-                Terraria.DataStructures.IEntitySource entitySource = null;
-                Main.LocalPlayer.QuickSpawnItem(entitySource, ItemID.BrokenHeroSword);
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shootSpeed = 10f;
-                SoundEngine.PlaySound(sound.WithVolumeScale(4f).WithPitchOffset(0.8f), player.position);
-
-                if (player.whoAmI == Main.myPlayer)
-                {
-                    // If the player using the item is the client
-                    // (explicitely excluded serverside here)
-
-                    int type = ModContent.NPCType<Elder>();
-
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        if (!NPC.AnyNPCs(ModContent.NPCType<Elder>()))
-                        {
-                            // If the player is not in multiplayer, spawn directly
-                            NPC.SpawnOnPlayer(player.whoAmI, type);
-                        }
-
-                    }
-                    else
-                    {
-                        // If the player is in multiplayer, request a spawn
-                        // This will only work if NPCID.Sets.MPAllowedEnemies[type] is true, which we set in MinionBossBody
-                        NetMessage.SendData(MessageID.SpawnBoss, number: player.whoAmI, number2: type);
-                    }
-                }
-
-            }
-            if (target.type == NPCID.GolemHeadFree)
-            {
-                Item.TurnToAir();
-                Terraria.DataStructures.IEntitySource entitySource = null;
-                Main.LocalPlayer.QuickSpawnItem(entitySource, ItemID.BrokenHeroSword);
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shootSpeed = 10f;
-                SoundEngine.PlaySound(sound.WithVolumeScale(4f).WithPitchOffset(0.8f), player.position);
-
-                if (player.whoAmI == Main.myPlayer)
-                {
-                    // If the player using the item is the client
-                    // (explicitely excluded serverside here)
-
-                    int type = ModContent.NPCType<Elder>();
-
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        if (!NPC.AnyNPCs(ModContent.NPCType<Elder>()))
-                        {
-                            // If the player is not in multiplayer, spawn directly
-                            NPC.SpawnOnPlayer(player.whoAmI, type);
-                        }
-
-                    }
-                    else
-                    {
-                        // If the player is in multiplayer, request a spawn
-                        // This will only work if NPCID.Sets.MPAllowedEnemies[type] is true, which we set in MinionBossBody
-                        NetMessage.SendData(MessageID.SpawnBoss, number: player.whoAmI, number2: type);
-                    }
-                }
-
-            }
-            if (target.type == NPCID.GolemFistLeft)
-            {
-                Item.TurnToAir();
-                Terraria.DataStructures.IEntitySource entitySource = null;
-                Main.LocalPlayer.QuickSpawnItem(entitySource, ItemID.BrokenHeroSword);
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shootSpeed = 10f;
-                SoundEngine.PlaySound(sound.WithVolumeScale(4f).WithPitchOffset(0.8f), player.position);
-
-                if (player.whoAmI == Main.myPlayer)
-                {
-                    // If the player using the item is the client
-                    // (explicitely excluded serverside here)
-
-                    int type = ModContent.NPCType<Elder>();
-
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        if (!NPC.AnyNPCs(ModContent.NPCType<Elder>()))
-                        {
-                            // If the player is not in multiplayer, spawn directly
-                            NPC.SpawnOnPlayer(player.whoAmI, type);
-                        }
-
-                    }
-                    else
-                    {
-                        // If the player is in multiplayer, request a spawn
-                        // This will only work if NPCID.Sets.MPAllowedEnemies[type] is true, which we set in MinionBossBody
-                        NetMessage.SendData(MessageID.SpawnBoss, number: player.whoAmI, number2: type);
-                    }
-                }
-
-            }
-            if (target.type == NPCID.GolemFistRight)
-            {
-                Item.TurnToAir();
-                Terraria.DataStructures.IEntitySource entitySource = null;
-                Main.LocalPlayer.QuickSpawnItem(entitySource, ItemID.BrokenHeroSword);
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shoot = ProjectileID.CrystalShard;
-                Item.shootSpeed = 10f;
-                SoundEngine.PlaySound(sound.WithVolumeScale(4f).WithPitchOffset(0.8f), player.position);
-
-                if (player.whoAmI == Main.myPlayer)
-                {
-                    int type = ModContent.NPCType<Elder>();
-
-                    if (Main.netMode != NetmodeID.MultiplayerClient)
-                    {
-                        if (!NPC.AnyNPCs(ModContent.NPCType<Elder>()))
-                        {
-                            // If the player is not in multiplayer, spawn directly
-                            NPC.SpawnOnPlayer(player.whoAmI, type);
-                        }
-                    }
-                    else
-                    {
-                        // If the player is in multiplayer, request a spawn
-                        // This will only work if NPCID.Sets.MPAllowedEnemies[type] is true, which we set in MinionBossBody
-                        NetMessage.SendData(MessageID.SpawnBoss, number: player.whoAmI, number2: type);
-                    }
-                }
-
-            }
-        }
-
-        public override void AddRecipes() 
+				NPC.SpawnOnPlayer(((Entity)player).whoAmI, num);
+			}
+		}
+		else
 		{
-			Recipe recipe = CreateRecipe();
-			recipe.AddIngredient(ItemID.HallowedBar, 20);
-            recipe.AddIngredient(ItemID.GoldBar, 10);
-            recipe.AddIngredient(ItemID.HellstoneBar, 15);
-            recipe.AddIngredient(ItemID.SoulofSight, 5);
-            recipe.AddIngredient(ItemID.SoulofMight, 5);
-            recipe.AddIngredient(ItemID.SoulofFright, 5);
-            recipe.AddTile(TileID.MythrilAnvil);
-			recipe.Register();
+			NetMessage.SendData(61, -1, -1, (NetworkText)null, ((Entity)player).whoAmI, (float)num, 0f, 0f, 0, 0, 0);
+		}
+	}
 
-            Recipe recipe1 = CreateRecipe();
-            recipe1.AddIngredient(ItemID.HallowedBar, 20);
-            recipe1.AddIngredient(ItemID.PlatinumBar, 10);
-            recipe1.AddIngredient(ItemID.HellstoneBar, 15);
-            recipe1.AddIngredient(ItemID.SoulofSight, 5);
-            recipe1.AddIngredient(ItemID.SoulofMight, 5);
-            recipe1.AddIngredient(ItemID.SoulofFright, 5);
-            recipe1.AddTile(TileID.MythrilAnvil);
-            recipe1.Register();
-        }
+	public override void AddRecipes()
+	{
+		Recipe val = ((ModItem)this).CreateRecipe(1);
+		val.AddIngredient(1225, 20);
+		val.AddIngredient(19, 10);
+		val.AddIngredient(175, 15);
+		val.AddIngredient(549, 5);
+		val.AddIngredient(548, 5);
+		val.AddIngredient(547, 5);
+		val.AddTile(134);
+		val.Register();
+		Recipe val2 = ((ModItem)this).CreateRecipe(1);
+		val2.AddIngredient(1225, 20);
+		val2.AddIngredient(706, 10);
+		val2.AddIngredient(175, 15);
+		val2.AddIngredient(549, 5);
+		val2.AddIngredient(548, 5);
+		val2.AddIngredient(547, 5);
+		val2.AddTile(134);
+		val2.Register();
+	}
+
+	public ZSword()
+	{
+		//IL_0007: Unknown result type (might be due to invalid IL or missing references)
+		//IL_000c: Unknown result type (might be due to invalid IL or missing references)
 	}
 }
