@@ -90,7 +90,8 @@ internal class BeastBuff : Transformation
 		}
 		else
 		{
-			base.baseDefenceBonus = 32;
+			// Extreme Scaling: 295x -> ~320x (BoostPerc mechanic preserved); defense 4500 (hand-set)
+			base.baseDefenceBonus = 4500;
 			base.speedMulti = 1.4f;
 		}
 		((Transformation)this).SetStaticDefaults();
@@ -105,7 +106,8 @@ internal class BeastBuff : Transformation
 		}
 		else
 		{
-			base.damageMulti = 1.5f + 0.3f * modPlayer.BoostPerc;
+			// Extreme Scaling: base 295x, peak ~320x at BoostPerc 1.0 (295 x 1.085 ~= 320)
+			base.damageMulti = 295.0f + 25.0f * modPlayer.BoostPerc;
 		}
 		((Transformation)this).Update(player, ref buffIndex);
 	}

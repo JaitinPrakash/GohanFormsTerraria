@@ -92,8 +92,9 @@ public class MysticBuff : Transformation
 		}
 		else
 		{
-			base.baseDefenceBonus = 24;
-			base.damageMulti = 1.55f;
+			// Extreme Scaling: 60x (= SSJ God / full-evil SSJ3FP); defense 19 x 60 = 1140
+			base.baseDefenceBonus = 1140;
+			base.damageMulti = 60.0f;
 			base.speedMulti = 1.12f;
 		}
 		((Transformation)this).SetStaticDefaults();
