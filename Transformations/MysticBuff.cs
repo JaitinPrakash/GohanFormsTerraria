@@ -97,7 +97,7 @@ public class MysticBuff : Transformation
 			base.damageMulti = 60.0f;
 			base.speedMulti = 1.12f;
 		}
-		((Transformation)this).SetStaticDefaults();
+		base.SetStaticDefaults();
 	}
 
 	public override void Update(Player player, ref int buffIndex)
@@ -107,7 +107,7 @@ public class MysticBuff : Transformation
 		{
 			player.GetModPlayer<GPlayer>().MasteryMultiplier = 3f;
 		}
-		((Transformation)this).Update(player, ref buffIndex);
-		((Transformation)this).SetStaticDefaults();
+		base.Update(player, ref buffIndex);
+		base.SetStaticDefaults();
 	}
 }

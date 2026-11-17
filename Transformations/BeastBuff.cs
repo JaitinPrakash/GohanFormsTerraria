@@ -94,7 +94,7 @@ internal class BeastBuff : Transformation
 			base.baseDefenceBonus = 4500;
 			base.speedMulti = 1.4f;
 		}
-		((Transformation)this).SetStaticDefaults();
+		base.SetStaticDefaults();
 	}
 
 	public override void Update(Player player, ref int buffIndex)
@@ -109,6 +109,6 @@ internal class BeastBuff : Transformation
 			// Extreme Scaling: base 295x, peak ~320x at BoostPerc 1.0 (295 x 1.085 ~= 320)
 			base.damageMulti = 295.0f + 25.0f * modPlayer.BoostPerc;
 		}
-		((Transformation)this).Update(player, ref buffIndex);
+		base.Update(player, ref buffIndex);
 	}
 }
